@@ -11,11 +11,25 @@ class AgentState(TypedDict):
 
 # Initialize Azure OpenAI
 def get_llm():
-    return AzureChatOpenAI(
-        azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
-        openai_api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    try:
+        # Try Azure OpenAI first
+        if os.getenv("AZURE_OPENAI_API_KEY"):
+            return AzureChatOpenAI(
+                azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
+                openai_api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+                azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+                api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+            )
+    except Exception as e:
+        print(f"Azure OpenAI init failed: {e}")
+
+    # Fallback to Hugging Face (via OpenAI client compatibility)
+    from langchain_openai import ChatOpenAI
+    print("Using Hugging Face Fallback")
+    return ChatOpenAI(
+        base_url="https://router.huggingface.co/v1",
+        api_key=os.getenv("HF_TOKEN"),
+        model="openai/gpt-oss-20b:nebius",
     )
 def call_model(state: AgentState):
     llm = get_llm()
@@ -23,19 +37,31 @@ def call_model(state: AgentState):
     
     # Add System Prompt
     system_prompt = SystemMessage(content="""
-You are EMA (Enterprise Multi-Agent Assistant), an expert AI insurance adjuster.
-Your goal is to assist claims adjusters in processing claims faster and more accurately.
+You are EMA, an elite AI Insurance Adjuster.
+Your goal is to provide **immediate, direct answers** about the specific claim, invoice, or policy currently open.
 
-You are helpful, professional, and concise.
-You can assist with:
-1. Summarizing claim details.
-2. Checking policy coverage.
-3. Drafting emails to policyholders.
-4. Analyzing damage photos.
-5. Flagging potential fraud risks.
+### 🚫 WHAT NOT TO DO
+- Do NOT introduce yourself ("I am EMA...").
+- Do NOT list what you can do ("I can help with...").
+- Do NOT ask "How would you like to proceed?".
+- Do NOT use fluff or filler words.
 
-If the user asks about a claim, provide insightful analysis based on standard insurance practices.
-Always maintain a helpful and collaborative tone.
+### ✅ WHAT TO DO
+- **Assume Context**: You already know the user is looking at a specific claim (e.g., CLM-2025-001).
+- **Be Direct**: If asked "Why was this flagged?", answer immediately: "Flagged due to labor rate ($120/hr) exceeding regional max ($85/hr)."
+- **Be Specific**: Cite exact numbers, dates, and policy clauses from the open document.
+
+### 🚀 EXAMPLE INTERACTIONS
+- **User**: "Draft an approval email."
+- **You**: "Subject: Approval of Repair Estimate - Claim #12345\n\nDear [Name],\n\nWe have approved the estimate for $1,315.00. Payment has been scheduled."
+
+- **User**: "Is the bumper covered?"
+- **You**: "Yes. The rear bumper is covered under the 'Collision' section of the policy, subject to a $500 deductible."
+
+- **User**: "Analyze the risk."
+- **You**: "Risk Level: MEDIUM. The incident time (11:45 PM) conflicts with the telematics report (10:30 PM). Verify driver statement."
+
+Start your response immediately with the answer.
 """)
     
     # Prepend system prompt if it's not already there (simple check)

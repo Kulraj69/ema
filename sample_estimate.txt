@@ -1,0 +1,37 @@
+REPAIR ESTIMATE
+
+JOE'S AUTO BODY & REPAIR
+123 Garage Lane, Springfield, IL 62704
+Phone: (555) 019-2834
+
+Date: Nov 21, 2025
+Invoice #: 99283
+Claim #: CLM-2025-001
+
+BILL TO:
+Alice Johnson
+456 Oak Street
+Springfield, IL 62704
+
+VEHICLE:
+2018 Honda Civic
+VIN: 1HGFC2F56JH876543
+
+--------------------------------------------------------------------------------
+DESCRIPTION                     TYPE        HOURS       RATE        TOTAL
+--------------------------------------------------------------------------------
+Rear Bumper Cover (OEM)         Part                    $850.00     $850.00
+Paint & Refinish                Labor       3.5         $120.00     $420.00
+Shop Supplies                   Other                   $45.00      $45.00
+Disposal Fee                    Other                   $15.00      $15.00
+
+--------------------------------------------------------------------------------
+SUBTOTAL:                                                       $1,330.00
+TAX (6.25%):                                                    $83.13
+--------------------------------------------------------------------------------
+TOTAL ESTIMATE:                                                 $1,413.13
+--------------------------------------------------------------------------------
+
+NOTES:
+- OEM parts used as per customer request.
+- Paint labor rate reflects premium finish.
